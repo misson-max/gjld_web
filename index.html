@@ -1,0 +1,370 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>绞股蓝农业科技</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f0f0;display:flex;justify-content:center;min-height:100vh;color:#333}
+    #app{width:100%;max-width:430px;background:#f8f8f8;min-height:100vh;position:relative;padding-bottom:64px;box-shadow:0 0 30px rgba(0,0,0,.08)}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .page-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;color:#999;padding:40px 20px;text-align:center}
+    .page-placeholder .ph-icon{width:80px;height:80px;border-radius:16px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;font-size:32px;color:#4CAF50;margin-bottom:16px}
+    .page-placeholder h3{font-size:18px;color:#333;margin-bottom:8px;font-weight:500}
+    .page-placeholder p{font-size:14px;color:#999;line-height:1.6}
+
+    /* ===== Tab Bar ===== */
+    .tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;display:flex;border-top:1px solid #eee;z-index:1000;padding-bottom:env(safe-area-inset-bottom)}
+    .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0 4px;cursor:pointer;transition:all .2s;-webkit-user-select:none;user-select:none;position:relative}
+    .tab-item .tab-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+    .tab-item .tab-icon svg{width:22px;height:22px;fill:#999;transition:fill .2s}
+    .tab-item .tab-label{font-size:11px;color:#999;transition:color .2s}
+    .tab-item.active .tab-icon svg{fill:#4CAF50}
+    .tab-item.active .tab-label{color:#4CAF50;font-weight:500}
+    .tab-item:active{opacity:.7}
+
+    /* ===== Common ===== */
+    .section{padding:16px 16px 8px}
+    .section-title{font-size:17px;font-weight:600;color:#222;margin-bottom:12px;padding-left:10px;border-left:3px solid #4CAF50;line-height:1.3}
+    .section-sub{font-size:12px;color:#999;font-weight:400;margin-left:8px}
+
+    /* ===== Hero ===== */
+    .hero{background:linear-gradient(135deg,#4CAF50,#2E7D32);padding:24px 20px 28px;border-radius:0 0 28px 28px;margin-bottom:0;position:relative}
+    .hero::after{content:'';position:absolute;bottom:-14px;left:0;right:0;height:28px;background:#f8f8f8;border-radius:28px 28px 0 0}
+    .hero-inner{display:flex;align-items:center;gap:16px}
+    .hero-logo{flex-shrink:0;width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;font-weight:700;border:2px solid rgba(255,255,255,.3)}
+    .hero-text{flex:1;color:#fff}
+    .hero-text h1{font-size:17px;font-weight:600;margin-bottom:4px;line-height:1.4}
+    .hero-text p{font-size:12px;line-height:1.7;opacity:.9}
+
+    /* ===== Nav Cards ===== */
+    .nav-cards{display:flex;gap:12px;padding:8px 16px 16px;margin-top:-6px}
+    .nav-card{flex:1;background:#fff;border-radius:12px;padding:16px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:all .2s;border:1px solid #f0f0f0}
+    .nav-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .nav-card-left{display:flex;align-items:center;gap:10px}
+    .nav-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff}
+    .nav-card-icon.green{background:linear-gradient(135deg,#66BB6A,#43A047)}
+    .nav-card-icon.orange{background:linear-gradient(135deg,#FFA726,#FB8C00)}
+    .nav-card-info h4{font-size:15px;font-weight:600;color:#333;margin-bottom:2px}
+    .nav-card-info span{font-size:11px;color:#999}
+    .nav-card-arrow{color:#ccc;font-size:18px;font-weight:300}
+
+    /* ===== Gallery ===== */
+    .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .gallery-item{position:relative;border-radius:10px;overflow:hidden;cursor:pointer;aspect-ratio:4/3;background:#e0e0e0}
+    .gallery-item:active{opacity:.85}
+    .gallery-item img,.gallery-item .placeholder-img{width:100%;height:100%;object-fit:cover;display:block}
+    .gallery-item .placeholder-img{background:linear-gradient(135deg,#a5d6a7,#66BB6A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:500;text-align:center;padding:10px;line-height:1.4}
+    .gallery-item .placeholder-img.darker{background:linear-gradient(135deg,#81C784,#4CAF50)}
+    .gallery-item .tag{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;padding:2px 8px;border-radius:4px;backdrop-filter:blur(4px)}
+
+    /* ===== Products ===== */
+    .product-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 0 8px;scrollbar-width:none;-ms-overflow-style:none}
+    .product-scroll::-webkit-scrollbar{display:none}
+    .product-card{flex:0 0 auto;width:140px;background:#fff;border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .2s;border:1px solid #f0f0f0}
+    .product-card:active{transform:scale(.97);opacity:.9}
+    .product-card .pimg{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0e0e0,#bdbdbd);color:#999;font-size:13px;text-align:center;padding:10px;line-height:1.4;overflow:hidden}
+    .product-card .pimg.alt1{background:linear-gradient(135deg,#c8e6c9,#a5d6a7);color:#388E3C}
+    .product-card .pimg.alt2{background:linear-gradient(135deg,#fff3e0,#ffe0b2);color:#E65100}
+    .product-card .pimg.alt3{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:#2E7D32}
+    .product-card .pimg.alt4{background:linear-gradient(135deg,#fce4ec,#f8bbd0);color:#AD1457}
+    .product-card .pbody{padding:8px 10px 10px}
+    .product-card .pname{font-size:13px;font-weight:500;color:#333;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .product-card .pspec{font-size:11px;color:#999;margin-bottom:4px}
+    .product-card .pprice{font-size:15px;font-weight:600;color:#E53935}
+
+    /* ===== Bottom Image ===== */
+    .bottom-img-wrap{padding:4px 16px 20px}
+    .bottom-img{width:100%;aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#388E3C,#1B5E20);color:#fff;font-size:18px;font-weight:500;text-align:center;box-shadow:0 4px 16px rgba(76,175,80,.25);transition:all .2s}
+    .bottom-img:active{transform:scale(.98);opacity:.9}
+    .bottom-img .play-icon{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:10px;backdrop-filter:blur(4px)}
+    .bottom-img .bottom-text{position:absolute;bottom:20px;left:20px;right:20px;font-size:13px;opacity:.8;line-height:1.5}
+
+    /* ===== Lightbox ===== */
+    .lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;padding:20px}
+    .lightbox.show{display:flex}
+    .lightbox-close{position:absolute;top:16px;right:20px;color:#fff;font-size:32px;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.1);transition:background .2s;z-index:10}
+    .lightbox-close:active{background:rgba(255,255,255,.2)}
+    .lightbox-img{max-width:92%;max-height:80vh;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-size:20px;text-align:center;padding:30px 24px;line-height:1.8}
+    .lightbox-counter{color:rgba(255,255,255,.6);font-size:13px;margin-top:14px}
+    .lightbox-nav{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:space-between;padding:0 10px;pointer-events:none}
+    .lightbox-nav-btn{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;transition:background .2s}
+    .lightbox-nav-btn:active{background:rgba(255,255,255,.25)}
+
+    /* ===== Responsive ===== */
+    @media(min-width:431px){#app{border-left:1px solid #e0e0e0;border-right:1px solid #e0e0e0;box-shadow:0 0 40px rgba(0,0,0,.1)}}
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ==================== HOME ==================== -->
+  <div id="tab-home" class="tab-content active">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-logo">绞</div>
+        <div class="hero-text">
+          <h1>绞股蓝农业科技有限公司</h1>
+          <p>专注于绞股蓝仿野生种植、研发与精深加工，拥有万亩生态种植基地。以匠心守初心，从田间到车间全程品质管控，致力为消费者提供安全、道地、高活性的绞股蓝系列健康产品。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Cards -->
+    <div class="nav-cards">
+      <div class="nav-card" onclick="switchTab('product')">
+        <div class="nav-card-left">
+          <div class="nav-card-icon green">品</div>
+          <div class="nav-card-info">
+            <h4>产品中心</h4>
+            <span>查看全部产品</span>
+          </div>
+        </div>
+        <div class="nav-card-arrow">›</div>
+      </div>
+      <div class="nav-card" onclick="switchTab('scenic')">
+        <div class="nav-card-left">
+          <div class="nav-card-icon orange">基</div>
+          <div class="nav-card-info">
+            <h4>基地参观</h4>
+            <span>走进种植基地</span>
+          </div>
+        </div>
+        <div class="nav-card-arrow">›</div>
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="section">
+      <div class="section-title">山野种植 · 匠心生产</div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="section">
+      <div class="section-title">精选产品</div>
+      <div class="product-scroll" id="productScroll"></div>
+    </div>
+
+    <!-- Bottom Image -->
+    <div class="section" style="padding-top:4px">
+      <div class="section-title">品牌故事</div>
+      <div class="bottom-img-wrap" style="padding:0 0 8px">
+        <div class="bottom-img" onclick="previewImage(0,'brand')">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="play-icon">▶</div>
+            <div style="font-size:15px">点击查看</div>
+          </div>
+          <div class="bottom-text">万木丛中寻一叶 · 匠心传承蕴精华</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PRODUCT ==================== -->
+  <div id="tab-product" class="tab-content">
+    <div class="page-placeholder">
+      <div class="ph-icon">品</div>
+      <h3>产品展示</h3>
+      <p>绞股蓝茶 · 提取物 · 超微粉 · 含片<br>产品详情即将上线，敬请期待</p>
+    </div>
+  </div>
+
+  <!-- ==================== SCENIC ==================== -->
+  <div id="tab-scenic" class="tab-content">
+    <div class="page-placeholder">
+      <div class="ph-icon">景</div>
+      <h3>基地实景</h3>
+      <p>万亩仿野生种植基地 · GMP标准生产厂房<br>360° 实景展示即将上线</p>
+    </div>
+  </div>
+
+  <!-- ==================== CONTACT ==================== -->
+  <div id="tab-contact" class="tab-content">
+    <div class="page-placeholder">
+      <div class="ph-icon">联</div>
+      <h3>联系我们</h3>
+      <p>电话：400-000-0000<br>地址：XX省XX市XX区XX路XX号<br>邮箱：contact@gjld.com</p>
+    </div>
+  </div>
+
+  <!-- ==================== MY ==================== -->
+  <div id="tab-my" class="tab-content">
+    <div class="page-placeholder">
+      <div class="ph-icon">我</div>
+      <h3>个人中心</h3>
+      <p>我的订单 · 我的收藏 · 浏览记录<br>功能开发中，敬请期待</p>
+    </div>
+  </div>
+
+  <!-- ==================== TAB BAR ==================== -->
+  <nav class="tab-bar" id="tabBar">
+    <div class="tab-item active" data-tab="home">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 3L4 9v12h5v-7h6v7h5V9z"/></svg></div>
+      <div class="tab-label">首页</div>
+    </div>
+    <div class="tab-item" data-tab="product">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 6h5v5H6V6zm7 0h5v5h-5V6zm-7 7h5v5H6v-5zm7 0h5v5h-5v-5z"/></svg></div>
+      <div class="tab-label">产品展示</div>
+    </div>
+    <div class="tab-item" data-tab="scenic">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14 6l-4.22 5.63 1.25 1.67L14 9.33 19 16h-8.46l-4.01-5.37L1 18h22L14 6zM5 16l1.52-2.03L8.04 16H5z"/></svg></div>
+      <div class="tab-label">基地实景</div>
+    </div>
+    <div class="tab-item" data-tab="contact">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+      <div class="tab-label">联系我们</div>
+    </div>
+    <div class="tab-item" data-tab="my">
+      <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+      <div class="tab-label">我的</div>
+    </div>
+  </nav>
+
+  <!-- ==================== LIGHTBOX ==================== -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+    <div class="lightbox-img" id="lightboxContent"></div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+    <div class="lightbox-nav">
+      <div class="lightbox-nav-btn" onclick="changeImage(-1)">‹</div>
+      <div class="lightbox-nav-btn" onclick="changeImage(1)">›</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ====== DATA ======
+  var galleryData = [
+    { label: '仿野生种植基地', type: '种植基地', color: 'light' },
+    { label: '绞股蓝种苗培育', type: '种植基地', color: 'darker' },
+    { label: 'GMP标准生产车间', type: '生产厂房', color: 'light' },
+    { label: '成品包装流水线', type: '生产厂房', color: 'darker' }
+  ]
+  var productData = [
+    { id: 1, name: '绞股蓝茶', spec: '100g / 罐', price: '¥68.00', color: 'alt1' },
+    { id: 2, name: '绞股蓝提取物', spec: '500mg × 60粒', price: '¥128.00', color: 'alt2' },
+    { id: 3, name: '绞股蓝超微粉', spec: '3g × 30袋', price: '¥98.00', color: 'alt3' },
+    { id: 4, name: '绞股蓝含片', spec: '0.6g × 100片', price: '¥58.00', color: 'alt4' },
+    { id: 5, name: '绞股蓝袋泡茶', spec: '2g × 30包', price: '¥48.00', color: 'alt1' },
+    { id: 6, name: '绞股蓝口服液', spec: '10ml × 20支', price: '¥168.00', color: 'alt2' }
+  ]
+  var brandImages = [
+    '品牌故事 · 万木丛中寻一叶<br>匠心传承蕴精华'
+  ]
+
+  // ====== RENDER ======
+  function renderGallery() {
+    var grid = document.getElementById('galleryGrid')
+    var html = ''
+    for (var i = 0; i < galleryData.length; i++) {
+      var d = galleryData[i]
+      var cls = d.color === 'darker' ? 'placeholder-img darker' : 'placeholder-img'
+      html += '<div class="gallery-item" onclick="previewImage(' + i + ',\'gallery\')">'
+      html += '<div class="' + cls + '">' + d.label + '</div>'
+      html += '<div class="tag">' + d.type + '</div>'
+      html += '</div>'
+    }
+    grid.innerHTML = html
+  }
+
+  function renderProducts() {
+    var scroll = document.getElementById('productScroll')
+    var html = ''
+    for (var i = 0; i < productData.length; i++) {
+      var d = productData[i]
+      html += '<div class="product-card" onclick="goProductDetail(' + d.id + ')">'
+      html += '<div class="pimg ' + d.color + '">' + d.name + '</div>'
+      html += '<div class="pbody">'
+      html += '<div class="pname">' + d.name + '</div>'
+      html += '<div class="pspec">' + d.spec + '</div>'
+      html += '<div class="pprice">' + d.price + '</div>'
+      html += '</div></div>'
+    }
+    scroll.innerHTML = html
+  }
+
+  // ====== TAB SWITCH ======
+  function switchTab(name) {
+    var contents = document.querySelectorAll('.tab-content')
+    for (var i = 0; i < contents.length; i++) { contents[i].classList.remove('active') }
+    var target = document.getElementById('tab-' + name)
+    if (target) target.classList.add('active')
+    var items = document.querySelectorAll('.tab-item')
+    for (var j = 0; j < items.length; j++) { items[j].classList.remove('active') }
+    var tab = document.querySelector('.tab-item[data-tab="' + name + '"]')
+    if (tab) tab.classList.add('active')
+    window.scrollTo(0, 0)
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var tabs = document.querySelectorAll('.tab-item')
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function () {
+        var name = this.getAttribute('data-tab')
+        switchTab(name)
+      })
+    }
+  })
+
+  // ====== LIGHTBOX ======
+  var currentImages = []
+  var currentIndex = 0
+
+  function previewImage(index, type) {
+    if (type === 'gallery') {
+      currentImages = galleryData.map(function (d) { return { label: d.label, type: d.type, color: d.color } })
+    } else if (type === 'brand') {
+      currentImages = brandImages.map(function (t) { return { label: t, type: 'brand' } })
+    }
+    currentIndex = index
+    showLightboxImage()
+    document.getElementById('lightbox').classList.add('show')
+    document.body.style.overflow = 'hidden'
+  }
+
+  function showLightboxImage() {
+    var el = document.getElementById('lightboxContent')
+    var d = currentImages[currentIndex]
+    var bg = d.color === 'darker' ? 'linear-gradient(135deg,#81C784,#4CAF50)' : 'linear-gradient(135deg,#a5d6a7,#66BB6A)'
+    el.style.background = bg
+    el.innerHTML = d.label
+    var counter = document.getElementById('lightboxCounter')
+    counter.textContent = (currentIndex + 1) + ' / ' + currentImages.length
+  }
+
+  function changeImage(dir) {
+    currentIndex = (currentIndex + dir + currentImages.length) % currentImages.length
+    showLightboxImage()
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('show')
+    document.body.style.overflow = ''
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeLightbox()
+    if (e.key === 'ArrowLeft' || e.key === 'a') changeImage(-1)
+    if (e.key === 'ArrowRight' || e.key === 'd') changeImage(1)
+  })
+  document.getElementById('lightbox').addEventListener('click', function (e) {
+    if (e.target === this) closeLightbox()
+  })
+
+  // ====== PRODUCT DETAIL ======
+  function goProductDetail(id) {
+    var p = productData.find(function (d) { return d.id === id }) || { name: '产品' }
+    alert('产品详情页\n\n' + p.name + '\n' + p.spec + '\n' + p.price + '\n\n（产品详情页开发中，敬请期待）')
+  }
+
+  // ====== INIT ======
+  renderGallery()
+  renderProducts()
+</script>
+</body>
+</html>
